@@ -1,0 +1,150 @@
+﻿      <SW.Blocks.CompileUnit ID="{id}" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><FlgNet xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/FlgNet/v4">
+  <Parts>
+    <Access Scope="GlobalVariable" UId="21">
+      <Symbol>
+        <Component Name="DB_SafetyStatus" />
+        <Component Name="Safety" />
+        <Component Name="MachineOn" />
+        <Address Area="None" Type="Bool" BlockNumber="1005" BitOffset="32" Informative="true" />
+      </Symbol>
+    </Access>
+    <Access Scope="GlobalVariable" UId="22">
+      <Symbol>
+        <Component Name="DB_SetupMode" />
+        <Component Name="Out_Reset" />
+        <Component Name="ResetPulsP" />
+        <Address Area="None" Type="Bool" BlockNumber="1002" BitOffset="616" Informative="true" />
+      </Symbol>
+    </Access>
+    <Call UId="23">
+      <CallInfo Name="FB_ActuatorsHandling" BlockType="FB">
+        <IntegerAttribute Name="BlockNumber" Informative="true">16</IntegerAttribute>
+        <DateAttribute Name="ParameterModifiedTS" Informative="true">2023-07-05T06:24:22</DateAttribute>
+        <Instance Scope="GlobalVariable" UId="24">
+          <Component Name="DB_Actuators" />
+          <Address Area="DB" Type="FB_ActuatorsHandling" BlockNumber="4" BitOffset="0" Informative="true" />
+        </Instance>
+        <Parameter Name="I" Section="Input" Type="Array[1..&quot;NumberOfActuators&quot;] of &quot;Udt_Actuator_I&quot;">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="In" Section="Input" Type="Array[1..&quot;NumberOfActuators&quot;] of &quot;Udt_Actuator_In&quot;">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="Name" Section="Input" Type="Array[1..&quot;NumberOfActuators&quot;] of Int">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="Param" Section="Input" Type="Array[1..&quot;NumberOfActuators&quot;] of &quot;Udt_Actuator_Param&quot;">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="MachineOn" Section="Input" Type="Bool">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="ErrorAck" Section="Input" Type="Bool">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="Q" Section="Output" Type="Array[1..&quot;NumberOfActuators&quot;] of &quot;Udt_Actuator_Q&quot;">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="QI" Section="Output" Type="Array[1..&quot;NumberOfActuators&quot;] of &quot;Udt_Actuator_Qi&quot;">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+        <Parameter Name="Out_ErrorOnStation" Section="Output" Type="Array[1..20] of Bool">
+          <StringAttribute Name="InterfaceFlags" Informative="true">S7_Visible</StringAttribute>
+        </Parameter>
+      </CallInfo>
+    </Call>
+  </Parts>
+  <Wires>
+    <Wire UId="32">
+      <Powerrail />
+      <NameCon UId="23" Name="en" />
+    </Wire>
+    <Wire UId="33">
+      <OpenCon UId="25" />
+      <NameCon UId="23" Name="I" />
+    </Wire>
+    <Wire UId="34">
+      <OpenCon UId="26" />
+      <NameCon UId="23" Name="In" />
+    </Wire>
+    <Wire UId="35">
+      <OpenCon UId="27" />
+      <NameCon UId="23" Name="Name" />
+    </Wire>
+    <Wire UId="36">
+      <OpenCon UId="28" />
+      <NameCon UId="23" Name="Param" />
+    </Wire>
+    <Wire UId="37">
+      <IdentCon UId="21" />
+      <NameCon UId="23" Name="MachineOn" />
+    </Wire>
+    <Wire UId="38">
+      <IdentCon UId="22" />
+      <NameCon UId="23" Name="ErrorAck" />
+    </Wire>
+    <Wire UId="39">
+      <NameCon UId="23" Name="Q" />
+      <OpenCon UId="29" />
+    </Wire>
+    <Wire UId="40">
+      <NameCon UId="23" Name="QI" />
+      <OpenCon UId="30" />
+    </Wire>
+    <Wire UId="41">
+      <NameCon UId="23" Name="Out_ErrorOnStation" />
+      <OpenCon UId="31" />
+    </Wire>
+  </Wires>
+</FlgNet></NetworkSource>
+          <ProgrammingLanguage>LAD</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="{id}" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="{id}" CompositionName="Items">
+                <AttributeList>
+                  <Culture>pl-PL</Culture>
+                  <Text>Actuator handling</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+              <MultilingualTextItem ID="{id}" CompositionName="Items">
+                <AttributeList>
+                  <Culture>es-MX</Culture>
+                  <Text>Actuator handling</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+              <MultilingualTextItem ID="{id}" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Actuator handling</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="{id}" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="{id}" CompositionName="Items">
+                <AttributeList>
+                  <Culture>pl-PL</Culture>
+                  <Text>Actuator handling</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+              <MultilingualTextItem ID="{id}" CompositionName="Items">
+                <AttributeList>
+                  <Culture>es-MX</Culture>
+                  <Text>Actuator handling</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+              <MultilingualTextItem ID="{id}" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text>Actuator handling</Text>
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>

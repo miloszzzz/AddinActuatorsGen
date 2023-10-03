@@ -1,0 +1,5 @@
+﻿      <MultilingualText ID="{id}" CompositionName="Comment">
+        <ObjectList>
+{multilingual}
+        </ObjectList>
+      </MultilingualText>

@@ -1,0 +1,15 @@
+﻿      <Hmi.TextGraphicList.TextListEntry ID="{id}" CompositionName="Entries">
+        <AttributeList>
+          <DefaultEntry>false</DefaultEntry>
+          <EntryType>SingleValue</EntryType>
+          <From>{number}</From>
+          <To>{number}</To>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="{id}" CompositionName="Text">
+            <ObjectList>
+{multilingual}
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </Hmi.TextGraphicList.TextListEntry>
