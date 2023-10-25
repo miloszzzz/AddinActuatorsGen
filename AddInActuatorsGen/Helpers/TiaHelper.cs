@@ -268,18 +268,22 @@ namespace AddInActuatorsGen
                     switch(tagType)
                     {
                         case EnumActTag.InputRet:
+                            if (actuators[nums[0]].InputRetract != "Unknown") return false;
                             actuators[nums[0]].InputRetract = tag.Name;
                             return true;
 
                         case EnumActTag.InputExt:
+                            if (actuators[nums[0]].InputExtend != "Unknown") return false;
                             actuators[nums[0]].InputExtend = tag.Name;
                             return true;
 
                         case EnumActTag.OutputRet:
+                            if (actuators[nums[0]].OutputRetract != "Unknown") return false;
                             actuators[nums[0]].OutputRetract = tag.Name;
                             return true;
 
                         case EnumActTag.OutputExt:
+                            if (actuators[nums[0]].OutputExtend != "Unknown") return false;
                             actuators[nums[0]].OutputExtend = tag.Name;
                             return true;
 
@@ -309,12 +313,16 @@ namespace AddInActuatorsGen
             RegexOptions regexOptions = RegexOptions.IgnoreCase;
 
             Regex inputRetRegex = new Regex(input + @"\d*" + retract + @"[\s\S]*", regexOptions);
+            Regex inputRetRegex2 = new Regex(input + @"\d*" + @"[\s\S]*" + retract, regexOptions);
             Regex inputRetRegexPl = new Regex(wej + @"\d*" + @"[\s\S]*" + cof, regexOptions);
             Regex inputRetRegexPl2 = new Regex(wej + @"\d*" + @"[\s\S]*" + "Otw" + @"[\s\S]*", regexOptions);
+            Regex inputRetRegexLast = new Regex("I_" + @"[\s\S]*" + @"Y\d*" + @"[\s\S]*", regexOptions);
 
             Regex inputExtRegex = new Regex(input + @"\d*" + extend + @"[\s\S]*", regexOptions);
+            Regex inputExtRegex2 = new Regex(input + @"\d*" + @"[\s\S]*" + extend, regexOptions);
             Regex inputExtRegexPl = new Regex(wej + @"\d*" + @"[\s\S]*" + wys, regexOptions);
             Regex inputExtRegexPl2 = new Regex(wej + @"\d*" + @"[\s\S]*" + "Zam" + @"[\s\S]*", regexOptions);
+            Regex inputExtRegexLast = new Regex("I_" + @"[\s\S]*" + @"Y\d*" + @"[\s\S]*", regexOptions);
 
             Regex outputRetRegex = new Regex(output + @"[\s\S]*Y\d{1,3}_" + retract + @"[\s\S]*", regexOptions);
             Regex outputRetRegexPl = new Regex(wyj + @"[\s\S]*Y\d{1,3}_" + cof + @"[\s\S]*", regexOptions);
@@ -328,10 +336,12 @@ namespace AddInActuatorsGen
                 // Inputs // maybe remove used tag from tag list?
                 //
                 if (TryAssignTag(inputRetRegex, tag, actuators, EnumActTag.InputRet)) continue;
+                if (TryAssignTag(inputRetRegex2, tag, actuators, EnumActTag.InputRet)) continue;
                 if (TryAssignTag(inputRetRegexPl, tag, actuators, EnumActTag.InputRet)) continue;
                 if (TryAssignTag(inputRetRegexPl2, tag, actuators, EnumActTag.InputRet)) continue;
 
                 if (TryAssignTag(inputExtRegex, tag, actuators, EnumActTag.InputExt)) continue;
+                if (TryAssignTag(inputExtRegex2, tag, actuators, EnumActTag.InputExt)) continue;
                 if (TryAssignTag(inputExtRegexPl, tag, actuators, EnumActTag.InputExt)) continue;
                 if (TryAssignTag(inputExtRegexPl2, tag, actuators, EnumActTag.InputExt)) continue;
 
@@ -342,6 +352,11 @@ namespace AddInActuatorsGen
 
                 if (TryAssignTag(outputExtRegex, tag, actuators, EnumActTag.OutputExt)) continue;
                 if (TryAssignTag(outputExtRegexPl, tag, actuators, EnumActTag.OutputExt)) continue;
+
+                // Inputs not precise
+                //
+                if (TryAssignTag(inputRetRegexLast, tag, actuators, EnumActTag.InputRet)) continue;
+                if (TryAssignTag(inputExtRegexLast, tag, actuators, EnumActTag.InputExt)) continue;
             }
         }
 

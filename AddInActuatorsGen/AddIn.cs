@@ -29,6 +29,7 @@ namespace AddInActuatorsGen
         ///<para>It will be used in the TIA Add-In.</para>
         /// </summary>
         TiaPortal _tiaportal;
+        public ExclusiveAccess tiaMessage;
 
         /// <summary>
         /// The display name of the Add-In.
@@ -99,13 +100,13 @@ namespace AddInActuatorsGen
                 "FC_Actuators", OnDoSomething, OnCanSomething);
 
             addInRootSubmenu.Items.AddActionItem<PlcBlock>(
-                "FC_Actuators", OnDoSomething, OnCanSomething);
+                "FC_Actuators - Folder", OnDoSomething, OnCanSomething);
 
             addInRootSubmenu.Items.AddActionItem<Project>(
-                "FC_Actuators", OnDoSomething, OnCanSomething);
+                "FC_Actuators - Folder", OnDoSomething, OnCanSomething);
 
             addInRootSubmenu.Items.AddActionItem<DeviceItem>(
-                "FC_Actuators", OnDoSomething, OnCanSomething);
+                "FC_Actuators - Folder", OnDoSomething, OnCanSomething);
         }
 
         /// <summary>
@@ -126,7 +127,12 @@ namespace AddInActuatorsGen
             }
             catch (Exception ex)
             {
-                LogToFile.Save(ex);
+                if (ex.Message == "Addin canceled") _tiaportal.Dispose();
+                else
+                {
+                    LogToFile.Save(ex);
+                    _tiaportal.Dispose();
+                }
             }
         }
 
@@ -242,10 +248,21 @@ namespace AddInActuatorsGen
         }
 
 
+        public bool CheckCancellation()
+        {
+            if (tiaMessage.IsCancellationRequested)
+            {
+                throw new Exception("Addin canceled");
+            }
+            return false;
+        }
+
+
+
         public void ActuatorsGenerator(MenuSelectionProvider<PlcBlockGroup>
             menuSelectionProvider)
         {
-            ExclusiveAccess accesWindow = _tiaportal.ExclusiveAccess("Odczytywanie tagów...");
+            tiaMessage = _tiaportal.ExclusiveAccess("Odczytywanie tagów...");
             TiaHelper tiaProject = new TiaHelper();
 
             IEnumerable<PlcBlockGroup> selection = menuSelectionProvider.GetSelection<PlcBlockGroup>();
@@ -266,6 +283,7 @@ namespace AddInActuatorsGen
             List<PlcTag> Tags = new List<PlcTag>(1000);
             List<PlcConstant> Constants = new List<PlcConstant>(1000);
 
+            CheckCancellation();
             tiaProject.GetTagsConstantsLists(plcSoftware, ref Tags, ref Constants);
             
 
@@ -286,10 +304,10 @@ namespace AddInActuatorsGen
 
 
 
-            accesWindow.Text = $"Tworzenie listy siłowników: ";
+            tiaMessage.Text = $"Tworzenie listy siłowników: ";
             foreach (PlcConstant c in ActuatorsConstants)
             {
-                
+                CheckCancellation();
                 //Console.WriteLine(c.Name);
                 Actuator actuator = new Actuator();
 
@@ -307,7 +325,7 @@ namespace AddInActuatorsGen
                 int.TryParse(c.Name.Substring(1, 1), out st);
                 actuator.Station = st >= 1 ? (EnumStations)st - 1 : 0;
                 Actuators.Add(actuator.Number, actuator);
-                accesWindow.Text = $"Tworzenie listy siłowników: " + Actuators.Count;
+                tiaMessage.Text = $"Tworzenie listy siłowników: " + Actuators.Count;
             }
 
 
@@ -339,7 +357,7 @@ namespace AddInActuatorsGen
                 actuatorsBlockName = nameBase + ++nameIter;
             }
 
-
+            CheckCancellation();
             // File to export
             string xmlFilePath = Path.GetTempFileName() + ".Xml";
             //string xmlFilePath = Environment.CurrentDirectory + "Actuators.Xml";
@@ -358,7 +376,8 @@ namespace AddInActuatorsGen
 
             foreach (KeyValuePair<int, Actuator> act in Actuators)
             {
-                accesWindow.Text = $"Generowanie networków {++networkCount} / {actuatorsNetworks}";
+                CheckCancellation();
+                tiaMessage.Text = $"Generowanie networków {++networkCount} / {actuatorsNetworks}";
 
                 tempConatant = XmlHelper.ActuatorsMovement.Contant;
 
@@ -385,7 +404,8 @@ namespace AddInActuatorsGen
             // Adding parameters networks
             foreach (KeyValuePair<int, Actuator> act in Actuators)
             {
-                accesWindow.Text = $"Generowanie networków {++networkCount} / {actuatorsNetworks}";
+                CheckCancellation();
+                tiaMessage.Text = $"Generowanie networków {++networkCount} / {actuatorsNetworks}";
 
                 tempConatant = XmlHelper.ActuatorsParameters.Contant;
 
@@ -404,7 +424,8 @@ namespace AddInActuatorsGen
             // Adding outputs network
             foreach (KeyValuePair<int, Actuator> act in Actuators)
             {
-                accesWindow.Text = $"Generowanie networków {++networkCount} / {actuatorsNetworks}";
+                CheckCancellation();
+                tiaMessage.Text = $"Generowanie networków {++networkCount} / {actuatorsNetworks}";
                 // Outputs template
                 tempConatant = XmlHelper.ActuatorsOutputs.Contant;
 
@@ -421,7 +442,7 @@ namespace AddInActuatorsGen
 
 
 
-
+            CheckCancellation();
 
             // Import generated block
             SWImportOptions importOptions = SWImportOptions.None;
