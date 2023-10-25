@@ -33,7 +33,7 @@ namespace AddInActuatorsGen
         /// <summary>
         /// The display name of the Add-In.
         /// </summary>
-        private const string s_DisplayNameOfAddIn = "Generatory";
+        private const string s_DisplayNameOfAddIn = "PhiTools";
 
         /// <summary>
         /// The constructor of the AddIn.
