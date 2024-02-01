@@ -9,21 +9,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using AddInActuatorsGen.Helpers;
-using AddInActuatorsGen.Models;
-using System.ComponentModel;
-using Siemens.Engineering.HW.Features;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
-using TIA_Add_In_Example_Project;
+using static TiaHelperLibrary.TiaHelper;
+using TiaHelperLibrary.Models.Tia;
 using AddinActuatorsGen.Helpers;
+using TiaXmlGenerator;
+using TiaXmlGenerator.Models;
+using System.Xml.Linq;
+using TiaHelperLibrary.Models.Tia;
+using System.Xml.Serialization;
+using Siemens.Engineering.Hmi.Tag;
+using static TiaHelperLibrary.Models.Tia.TagTableXml;
 
 namespace AddInActuatorsGen
 {
     public class AddIn : ContextMenuAddIn
     {
+        Siemens.Engineering.
         /// <summary>
         ///The global TIA Portal Object 
         ///<para>It will be used in the TIA Add-In.</para>
@@ -34,7 +36,7 @@ namespace AddInActuatorsGen
         /// <summary>
         /// The display name of the Add-In.
         /// </summary>
-        private const string s_DisplayNameOfAddIn = "PhiTools";
+        private const string s_DisplayNameOfAddIn = "Generatory";
 
         /// <summary>
         /// The constructor of the AddIn.
@@ -229,8 +231,7 @@ namespace AddInActuatorsGen
         {
             // go to project settings -> Debug -> command line arguments
             // specify which context menu item to test at --item
-            TiaHelper helper = new TiaHelper();
-            PlcSoftware software = helper.GetPlcSoftware(_tiaportal);
+            PlcSoftware software = GetPlcSoftware(_tiaportal);
 
             switch (label)
             {
@@ -263,7 +264,6 @@ namespace AddInActuatorsGen
             menuSelectionProvider)
         {
             tiaMessage = _tiaportal.ExclusiveAccess("Odczytywanie tagów...");
-            TiaHelper tiaProject = new TiaHelper();
 
             IEnumerable<PlcBlockGroup> selection = menuSelectionProvider.GetSelection<PlcBlockGroup>();
 
@@ -284,14 +284,62 @@ namespace AddInActuatorsGen
             List<PlcConstant> Constants = new List<PlcConstant>(1000);
 
             CheckCancellation();
-            tiaProject.GetTagsConstantsLists(plcSoftware, ref Tags, ref Constants);
+            GetTagsConstantsLists(plcSoftware, ref Tags, ref Constants);
             
 
             string expression = @"^Y\d{1,3}";
             Regex regex = new Regex(expression);
             var ActuatorsConstants = Constants.Where(c => regex.IsMatch(c.Name));
 
-            //MessageBox.Show("tags");
+
+
+
+
+
+
+
+
+
+
+
+
+
+            PlcTagTable actConstants = (PlcTagTable)Constants.FirstOrDefault(c => regex.IsMatch(c.Name)).Parent;
+
+            List<string> descriptions = new List<string>(1000);
+
+            // File to export
+            FileInfo xmlFile = new FileInfo(Path.GetTempFileName() + ".Xml");
+            actConstants.Export(new FileInfo(xmlFile.FullName), ExportOptions.None);
+
+            string xmlData = File.ReadAllText(xmlFile.FullName);
+            xmlFile.Delete();
+
+            /// Serialize xml to class
+            /// 
+            XmlSerializer serializer = new XmlSerializer(typeof(TagTableXml.Document));
+            using (StringReader reader = new StringReader(xmlData))
+            {
+                TagTableXml.Document tagTable = (TagTableXml.Document)serializer.Deserialize(reader);
+
+                foreach (DocumentSWTagsPlcTagTableObjectListSWTagsPlcUserConstant constant in tagTable.SWTagsPlcTagTable.ObjectList.SWTagsPlcUserConstant)
+                {
+                    foreach (DocumentSWTagsPlcTagTableObjectListSWTagsPlcUserConstantObjectListMultilingualTextMultilingualTextItem multitext in constant.ObjectList.MultilingualText.ObjectList)
+                    {
+                        if (multitext.AttributeList.Text != "") descriptions.Add(multitext.AttributeList.Text);
+                    }
+                }
+            }
+            
+
+
+
+
+
+
+
+
+
 
 
             expression = @"\w*Y\d{1,3}\w*";
@@ -312,9 +360,17 @@ namespace AddInActuatorsGen
                 Actuator actuator = new Actuator();
 
                 actuator.Name = c.Name;
+                try
+                {
+                    actuator.Description = descriptions.First(d => d.Contains(c.Name));
+                }
+                catch (Exception ex)
+                {
+                    actuator.Description = c.Name;
+                }
                 actuator.Constant = int.Parse(c.Value);
 
-                List<int> numbersInName = TiaHelper.FindNumbersInString(c.Name);
+                List<int> numbersInName = FindNumbersInString(c.Name);
 
                 if (numbersInName.Count > 0) actuator.Number = numbersInName[0];
                 else continue;
@@ -329,12 +385,12 @@ namespace AddInActuatorsGen
             }
 
 
-            TiaHelper.AssingTagsToActuators(Actuators, ActuatorsTags);
+            AssingTagsToActuators(Actuators, ActuatorsTags);
 
 
             // Check if !!!Devices folder exists
             PlcBlockGroup devicesGroup;
-            devicesGroup = tiaProject.GetGroupByGroupName(plcSoftware.BlockGroup, "!!!Devices");
+            devicesGroup = GetGroupByGroupName(plcSoftware.BlockGroup, "!!!Devices");
             if (devicesGroup == null)
             {
                 devicesGroup = plcSoftware.BlockGroup.Groups.Create("!!!Devices");
@@ -342,7 +398,7 @@ namespace AddInActuatorsGen
 
             // Check if actuators folder exists
             PlcBlockGroup actuatorsGroup;
-            actuatorsGroup = tiaProject.GetGroupByGroupName(devicesGroup, "Actuators");
+            actuatorsGroup = GetGroupByGroupName(devicesGroup, "Actuators");
             if (actuatorsGroup == null)
             {
                 actuatorsGroup = devicesGroup.Groups.Create("Actuators");
@@ -359,7 +415,7 @@ namespace AddInActuatorsGen
 
             CheckCancellation();
             // File to export
-            string xmlFilePath = Path.GetTempFileName() + ".Xml";
+            xmlFile = new FileInfo(Path.GetTempFileName() + ".Xml");
             //string xmlFilePath = Environment.CurrentDirectory + "Actuators.Xml";
             string xmlContant = XmlHelper.ActuatorsHeader.Contant;
 
@@ -421,6 +477,14 @@ namespace AddInActuatorsGen
             xmlContant += tempConatant;
 
 
+            // Adding comment subnet
+            Comment OutputsComment = new Comment("--------------------Outputs--------------------");
+            tempConatant = XmlHelper.SubnetComment.Contant;
+            tempConatant = XmlHelper.InsertComment(tempConatant, OutputsComment);
+            tempConatant = XmlHelper.InsertIds(tempConatant, ref id);
+            xmlContant += tempConatant;
+
+
             // Adding outputs network
             foreach (KeyValuePair<int, Actuator> act in Actuators)
             {
@@ -438,7 +502,7 @@ namespace AddInActuatorsGen
             // Adding footer
             xmlContant += XmlHelper.ActuatorsFooter.Contant;
 
-            File.WriteAllText(xmlFilePath, xmlContant);
+            File.WriteAllText(xmlFile.FullName, xmlContant);
 
 
 
@@ -447,7 +511,7 @@ namespace AddInActuatorsGen
             // Import generated block
             SWImportOptions importOptions = SWImportOptions.None;
 
-            actuatorsGroup.Blocks.Import(new FileInfo(xmlFilePath), ImportOptions.Override, importOptions);
+            actuatorsGroup.Blocks.Import(new FileInfo(xmlFile.FullName), ImportOptions.Override, importOptions);
 
 
             _tiaportal.Dispose();

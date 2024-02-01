@@ -1,6 +1,0 @@
-﻿              <MultilingualTextItem ID="{id}" CompositionName="Items">
-                <AttributeList>
-                  <Culture>{lang}</Culture>
-                  <Text><body><p>{text}</p></body></Text>
-                </AttributeList>
-              </MultilingualTextItem>
