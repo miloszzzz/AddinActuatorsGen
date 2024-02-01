@@ -263,6 +263,12 @@ namespace AddInActuatorsGen
         public void ActuatorsGenerator(MenuSelectionProvider<PlcBlockGroup>
             menuSelectionProvider)
         {
+            /// 
+            ///
+            /// Getting PlcSoftware object from menu selection
+            ///
+            ///
+
             tiaMessage = _tiaportal.ExclusiveAccess("Odczytywanie tagów...");
 
             IEnumerable<PlcBlockGroup> selection = menuSelectionProvider.GetSelection<PlcBlockGroup>();
@@ -280,6 +286,12 @@ namespace AddInActuatorsGen
             PlcSoftware plcSoftware = (PlcSoftware)parent;
 
 
+            /// 
+            ///
+            /// Reading all tags, finding tags connected to actuators
+            ///
+            ///
+
             List<PlcTag> Tags = new List<PlcTag>(1000);
             List<PlcConstant> Constants = new List<PlcConstant>(1000);
 
@@ -292,17 +304,11 @@ namespace AddInActuatorsGen
             var ActuatorsConstants = Constants.Where(c => regex.IsMatch(c.Name));
 
 
-
-
-
-
-
-
-
-
-
-
-
+            ///
+            /// 
+            /// Exporting tag table with actuator constants.
+            /// 
+            /// 
 
             PlcTagTable actConstants = (PlcTagTable)Constants.FirstOrDefault(c => regex.IsMatch(c.Name)).Parent;
 
@@ -315,8 +321,10 @@ namespace AddInActuatorsGen
             string xmlData = File.ReadAllText(xmlFile.FullName);
             xmlFile.Delete();
 
-            /// Serialize xml to class
             /// 
+            /// Serialize xml to class, reading actuators descriptions
+            /// 
+
             XmlSerializer serializer = new XmlSerializer(typeof(TagTableXml.Document));
             using (StringReader reader = new StringReader(xmlData))
             {
@@ -332,25 +340,26 @@ namespace AddInActuatorsGen
             }
             
 
-
-
-
-
-
-
-
-
-
+            /// 
+            /// 
+            /// Save only tags with Y* text
+            ///
+            ///
 
             expression = @"\w*Y\d{1,3}\w*";
             regex = new Regex(expression);
 
             Dictionary<int, Actuator> Actuators = new Dictionary<int, Actuator>(1000);
 
-            //MessageBox.Show("tags2");
             List<PlcTag> ActuatorsTags = Tags.Where(t => regex.IsMatch(t.Name)).ToList();
 
 
+
+            /// 
+            /// 
+            /// Assign tags to actuators IO
+            ///
+            ///
 
             tiaMessage.Text = $"Tworzenie listy siłowników: ";
             foreach (PlcConstant c in ActuatorsConstants)
@@ -384,9 +393,14 @@ namespace AddInActuatorsGen
                 tiaMessage.Text = $"Tworzenie listy siłowników: " + Actuators.Count;
             }
 
-
             AssingTagsToActuators(Actuators, ActuatorsTags);
 
+
+            /// 
+            /// 
+            /// Make folders and FC_Actuators file
+            ///
+            ///
 
             // Check if !!!Devices folder exists
             PlcBlockGroup devicesGroup;
@@ -414,6 +428,14 @@ namespace AddInActuatorsGen
             }
 
             CheckCancellation();
+
+
+            /// 
+            /// 
+            /// Generating XML file
+            ///
+            ///
+
             // File to export
             xmlFile = new FileInfo(Path.GetTempFileName() + ".Xml");
             //string xmlFilePath = Environment.CurrentDirectory + "Actuators.Xml";
@@ -504,9 +526,15 @@ namespace AddInActuatorsGen
 
             File.WriteAllText(xmlFile.FullName, xmlContant);
 
-
-
             CheckCancellation();
+
+
+
+            /// 
+            /// 
+            /// Import XML file
+            ///
+            ///
 
             // Import generated block
             SWImportOptions importOptions = SWImportOptions.None;
