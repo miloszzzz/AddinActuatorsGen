@@ -54,6 +54,8 @@
     <Compile Include="Enums\DefGroup.cs" />
     <Compile Include="Enums\DefLanguages.cs" />
     <Compile Include="Enums\EnumActTag.cs" />
+    <Compile Include="Functions\ActuatorsGenerator.cs" />
+    <Compile Include="Functions\TestsHmi.cs" />
     <Compile Include="Helpers\LogToFile.cs" />
     <Compile Include="Models\SubLevel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,6 +103,7 @@
       <Name>TiaXmlGenerator</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>$(ProjectDir)\AfterCompilation.bat $(ProjectDir) C:\Net\TiaAddInTester\bin</PostBuildEvent>
